@@ -1,4 +1,4 @@
-package com.leexm.demo.network.nio;
+package com.leexm.demo.network.nio.nio;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * nio实现服务端多线程版本
+ * nio实现服务端单线程版本
  *
  * @author lxm
  * @date 2019/10/25 13:09
