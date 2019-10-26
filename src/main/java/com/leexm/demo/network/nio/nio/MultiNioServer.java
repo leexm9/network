@@ -64,7 +64,7 @@ public class MultiNioServer {
                     socketChannel.register(selector, SelectionKey.OP_READ);
                 } else if (key.isReadable()) {
                     // 这里线程池处理，如果处理耗时较久，主线程已经进行了下一轮的 selector.selectedKeys() 时，该 SelectionKey 有可能又被选中
-                    // 导致：主线程得到是 ready 的 key 其实其他线程已经将其 cancel 了，再此进入这个分支会抛出 SocketCanceledException
+                    // 导致：主线程得到是 ready 的 key 其实其他线程已经将其 cancel/close 了，再此进入这个分支会抛出 SocketCanceledException
                     // 这里将 selectionKey 的读事件去除，使已经在处理的 selectionKey 不会因为线程处理比较耗时，导致主线程一直将其select 出来
                     key.interestOpsAnd(~SelectionKey.OP_READ);
 
