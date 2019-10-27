@@ -8,7 +8,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
 /**
- * 单线程版
+ * 单线程处理，I/O 和数据处理都在一个线程中
  *
  * @author leexm
  * @date 2019-10-26 16:57
@@ -57,6 +57,20 @@ public class Handler implements Runnable {
     void read() throws IOException {
         int len = socketChannel.read(input);
         if (inputIsComplete(len)) {
+            // 这段纯粹为了打印内容，没有实际含义
+            try {
+                int postion = input.position();
+                int limit = input.position();
+                input.flip();
+                String message = new String(input.array(), 0, input.limit(), "UTF-8");
+                System.out.println(String.format("线程%s，收到客户端信息:%s", Thread.currentThread().getName(), message));
+                // 还原现场
+                input.position(postion);
+                input.limit(limit);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
             process();
             state = SENDING;
             selectionKey.interestOps(SelectionKey.OP_WRITE);
@@ -88,13 +102,6 @@ public class Handler implements Runnable {
      */
     void process() {
         input.flip();
-        String message = null;
-        try {
-            message = new String(input.array(), 0, input.limit(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        System.out.println(String.format("线程%s，收到客户端信息:%s", Thread.currentThread().getName(), message));
         output.put((byte) '[');
         output.put(input);
         output.put((byte) ']');

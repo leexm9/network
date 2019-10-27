@@ -64,8 +64,8 @@ public class Reactor {
             try {
                 SocketChannel socketChannel = serverChannel.accept();
                 if (socketChannel != null) {
-//                    new Handler(selector, socketChannel);
-                    new ThreadPoolHandler(selector, socketChannel);
+//                    new Handler(selector, socketChannel); // 单线程处理
+                    new ThreadPoolHandler(selector, socketChannel);     // 线程池处理
                 }
             } catch (IOException e) {
                 e.printStackTrace();

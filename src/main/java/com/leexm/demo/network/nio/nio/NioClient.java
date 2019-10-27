@@ -16,7 +16,7 @@ public class NioClient {
 
     private static final String HOST = "127.0.0.1";
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
         int count = 50;
         CountDownLatch countDownLatch = new CountDownLatch(count);
 
