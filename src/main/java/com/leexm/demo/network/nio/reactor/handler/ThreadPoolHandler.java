@@ -38,7 +38,7 @@ public class ThreadPoolHandler extends Handler {
     protected void read() throws IOException {
         int len = socketChannel.read(input);
         if (inputIsComplete(len)) {
-            // 取消 read，防止数据处理耗时时 Selector将该 key 的 read 事件频繁取出
+            // 取消 read 事件，防止数据处理耗时时 Selector将该 key 的 read 事件频繁取出
             selectionKey.interestOpsAnd(~SelectionKey.OP_READ);
             state = PROCESSING;
             // 数据处理可能是 CPU 密集型
@@ -60,6 +60,7 @@ public class ThreadPoolHandler extends Handler {
         }
         state = SENDING;
         selectionKey.interestOps(SelectionKey.OP_WRITE);
+        // 唤醒 Selector.select() 方法导致的阻塞，下一轮 select() 处理 write 事件
         selector.wakeup();
     }
 
