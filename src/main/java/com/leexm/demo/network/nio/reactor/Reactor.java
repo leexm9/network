@@ -1,6 +1,7 @@
 package com.leexm.demo.network.nio.reactor;
 
 import com.leexm.demo.network.nio.reactor.handler.Handler;
+import com.leexm.demo.network.nio.reactor.handler.ThreadPoolHandler;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -63,7 +64,8 @@ public class Reactor {
             try {
                 SocketChannel socketChannel = serverChannel.accept();
                 if (socketChannel != null) {
-                    new Handler(selector, socketChannel);
+//                    new Handler(selector, socketChannel);
+                    new ThreadPoolHandler(selector, socketChannel);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
