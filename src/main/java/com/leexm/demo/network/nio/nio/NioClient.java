@@ -17,8 +17,7 @@ public class NioClient {
     private static final String HOST = "127.0.0.1";
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        int count = 5;
-        ByteBuffer message = ByteBuffer.wrap("Hello, world!".getBytes("UTF-8"));
+        int count = 50;
         CountDownLatch countDownLatch = new CountDownLatch(count);
 
         for (int i = 0; i < count; i++) {
@@ -27,6 +26,7 @@ public class NioClient {
                     SocketChannel socketChannel = SocketChannel.open();
                     socketChannel.connect(new InetSocketAddress(HOST, PORT));
 
+                    ByteBuffer message = ByteBuffer.wrap("Hello, world!".getBytes("UTF-8"));
                     socketChannel.write(message);
                     socketChannel.shutdownOutput();
 

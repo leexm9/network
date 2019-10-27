@@ -12,12 +12,12 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * 经典 Reactor 模式实现，既单线实现 nio 服务端
+ * Reactor 线程模型
  *
  * @author leexm
  * @date 2019-10-26 16:31
  */
-public class Reactor implements Runnable {
+public class Reactor {
 
     private final Selector selector;
 
@@ -32,8 +32,7 @@ public class Reactor implements Runnable {
         serverChannel.register(selector, SelectionKey.OP_ACCEPT, new Acceptor());
     }
 
-    @Override
-    public void run() {
+    public void kickOff() {
         System.out.println("服务器启动，等待连接中......");
         try {
             while (!Thread.interrupted()) {
@@ -52,6 +51,7 @@ public class Reactor implements Runnable {
 
     private void dispatch(SelectionKey selectionKey) {
         Runnable runnable = (Runnable) selectionKey.attachment();
+        // 这里是同步调用
         if (runnable != null) {
             runnable.run();
         }

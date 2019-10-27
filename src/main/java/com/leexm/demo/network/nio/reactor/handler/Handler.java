@@ -8,7 +8,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
 /**
- * 单线程实现版
+ * 单线程版
  *
  * @author leexm
  * @date 2019-10-26 16:57
@@ -18,20 +18,20 @@ public class Handler implements Runnable {
     /**
      * 定义 handler 可选的状态变量
      */
-    private static final int READING = 0, SENDING = 1;
+    static final int READING = 0, SENDING = 1;
 
-    private final SocketChannel socketChannel;
+    final SocketChannel socketChannel;
 
-    private final SelectionKey selectionKey;
+    final SelectionKey selectionKey;
 
     /**
-     * 设置初始状态，带读取
+     * 设置初始状态，读取
      */
-    private int state = READING;
+    int state = READING;
 
-    private ByteBuffer input = ByteBuffer.allocate(1024);
+    ByteBuffer input = ByteBuffer.allocate(1024);
 
-    private ByteBuffer output = ByteBuffer.allocate(1024);
+    ByteBuffer output = ByteBuffer.allocate(1024);
 
     public Handler(Selector selector, SocketChannel socketChannel) throws IOException {
         this.socketChannel = socketChannel;
@@ -54,7 +54,7 @@ public class Handler implements Runnable {
         }
     }
 
-    private void read() throws IOException {
+    void read() throws IOException {
         int len = socketChannel.read(input);
         if (inputIsComplete(len)) {
             process();
@@ -63,7 +63,7 @@ public class Handler implements Runnable {
         }
     }
 
-    private void send() throws IOException {
+    void send() throws IOException {
         socketChannel.write(output);
         if (outputIsComplete()) {
             socketChannel.close();
@@ -74,11 +74,11 @@ public class Handler implements Runnable {
      * 判断数据是否读完
      * @return
      */
-    private boolean inputIsComplete(int len) {
+    boolean inputIsComplete(int len) {
         return len < 0;
     }
 
-    private boolean outputIsComplete() {
+    boolean outputIsComplete() {
         // out bytebuffer 数据写完即完成写
         return !output.hasRemaining();
     }
@@ -86,7 +86,7 @@ public class Handler implements Runnable {
     /**
      * 自定义处理逻辑
      */
-    private void process() {
+    void process() {
         input.flip();
         String message = null;
         try {
