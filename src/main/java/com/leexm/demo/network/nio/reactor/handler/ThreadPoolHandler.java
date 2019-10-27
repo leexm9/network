@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 多线程处理，将 I/O 读写和耗时的数据处理逻辑分离，I/O 读写依然是一个线程处理
+ * 多线程处理，将 I/O 读写和耗时的数据处理逻辑分离
  *
  * @author leexm
  * @date 2019-10-26 23:15
@@ -18,8 +18,6 @@ import java.util.concurrent.TimeUnit;
 public class ThreadPoolHandler extends Handler {
 
     private static final int PROCESSING = 2;
-
-    private final Selector selector;
 
     private static final ExecutorService executors = Executors.newFixedThreadPool(4, (Runnable r) -> {
         Thread thread = new Thread(r);
@@ -29,6 +27,8 @@ public class ThreadPoolHandler extends Handler {
         });
         return thread;
     });
+
+    private final Selector selector;
 
     public ThreadPoolHandler(Selector selector, SocketChannel socketChannel) throws IOException {
         super(selector, socketChannel);

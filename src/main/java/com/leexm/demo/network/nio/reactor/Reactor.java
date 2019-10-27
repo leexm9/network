@@ -13,7 +13,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Reactor 线程模型
+ * 经典 Reactor 模型，I/O 读写主线程负责
+ * 根据 handler 的不同实现，数据处理可以和 I/O 读写在一个线程内或使用另外的线程处理
  *
  * @author leexm
  * @date 2019-10-26 16:31

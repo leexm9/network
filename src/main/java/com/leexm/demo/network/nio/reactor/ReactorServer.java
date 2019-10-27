@@ -11,7 +11,8 @@ import java.io.IOException;
 public class ReactorServer {
 
     public static void main(String[] args) throws IOException {
-        Reactor reactor = new Reactor(8088);
+//        Reactor reactor = new Reactor(8088);
+        MultiThreadReactor reactor = new MultiThreadReactor(8088);
         reactor.kickOff();
     }
 
