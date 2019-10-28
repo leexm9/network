@@ -23,6 +23,7 @@ public class NettyClient {
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(group)
                 .channel(NioSocketChannel.class)
+                .remoteAddress(HOST, PORT)
                 .handler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
@@ -33,7 +34,7 @@ public class NettyClient {
         try {
             for (int i = 0; i < 10; i++) {
                 // Start the client.
-                ChannelFuture future = bootstrap.connect(HOST, PORT).sync();
+                ChannelFuture future = bootstrap.connect().sync();
                 // Wait until the connection is closed.
                 future.channel().closeFuture().sync();
             }
