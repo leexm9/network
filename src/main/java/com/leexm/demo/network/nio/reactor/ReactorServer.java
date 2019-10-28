@@ -12,7 +12,7 @@ public class ReactorServer {
 
     public static void main(String[] args) throws IOException {
 //        Reactor reactor = new Reactor(8088);
-        MultiThreadReactor reactor = new MultiThreadReactor(8088);
+        MultiReactor reactor = new MultiReactor(8088);
         reactor.kickOff();
     }
 
