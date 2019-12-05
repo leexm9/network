@@ -2,10 +2,10 @@ package com.leexm.demo.network.netty;
 
 import com.leexm.demo.network.netty.handler.ServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 
 /**
  * Netty 实现
@@ -24,10 +24,16 @@ public class NettyServer {
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         serverBootstrap.group(boss, workers)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(new ChannelInitializer<>() {
+                .handler(new ChannelInitializer<NioServerSocketChannel>() {
                     @Override
-                    protected void initChannel(Channel ch) throws Exception {
-                        ch.pipeline().addLast(new ServerHandler());
+                    protected void initChannel(NioServerSocketChannel ch) throws Exception {
+                        System.out.println("进入boss 线程的 handler");
+                    }
+                })
+                .childHandler(new ChannelInitializer<NioSocketChannel>() {
+                    @Override
+                    protected void initChannel(NioSocketChannel ch) throws Exception {
+                        ch.pipeline().addLast("server-handler", new ServerHandler());
                     }
                 });
 
