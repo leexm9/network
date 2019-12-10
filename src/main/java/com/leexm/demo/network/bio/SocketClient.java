@@ -34,8 +34,8 @@ public class SocketClient {
                     // 通知对端，写已完成
                     socket.shutdownOutput();
 
-                    // 使用的 jdk11，jdk8 中没有该 api
                     InputStream inputStream = socket.getInputStream();
+                    // 使用的 jdk11，jdk8 中没有该 api
                     byte[] bytes = inputStream.readAllBytes();
                     String response = new String(bytes, "UTF-8");
                     System.out.println(String.format("[%s]线程服务端响应:%s", Thread.currentThread().getName(), response));
