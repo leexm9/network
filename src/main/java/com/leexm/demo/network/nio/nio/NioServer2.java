@@ -11,8 +11,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * 服务端可以接受客户端重复的请求
- * 服务器端不主动断开连接
+ * nio实现服务端单线程版本
  *
  * @author lxm
  * @date 2019/10/25 13:09
@@ -44,40 +43,59 @@ public class NioServer2 {
                 }
 
                 if (key.isAcceptable()) {
-                    ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
-                    SocketChannel socketChannel = serverSocketChannel.accept();
-                    socketChannel.configureBlocking(false);
-                    socketChannel.register(selector, SelectionKey.OP_READ);
+                    accecpHandler(key, selector);
                 } else if (key.isReadable()) {
-                    key.interestOpsAnd(~SelectionKey.OP_READ);
-
-                    SocketChannel socketChannel = (SocketChannel) key.channel();
-                    ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-                    socketChannel.read(byteBuffer);
-                    byteBuffer.flip();
-                    String message = new String(byteBuffer.array(), 0, byteBuffer.limit(), "UTF-8");
-                    System.out.println(String.format("线程%s，收到客户端信息:%s", Thread.currentThread().getName(), message));
-
-                    socketChannel.register(selector, SelectionKey.OP_WRITE, message);
-                } else if (key.isWritable()) {
-                    key.interestOpsAnd(~SelectionKey.OP_WRITE);
-
-                    SocketChannel socketChannel = (SocketChannel) key.channel();
-                    String message = (String) key.attachment();
-                    message = String.format("[%s]", message);
-                    ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-                    byteBuffer.put(message.getBytes("UTF-8"));
-                    byteBuffer.flip();
-                    try {
-                        socketChannel.write(byteBuffer);
-                        socketChannel.register(selector, SelectionKey.OP_READ);
-                    } catch (IOException e) {
-                        socketChannel.shutdownInput();
-                        key.cancel();
-                    }
+                    readHandler(key);
                 }
                 iter.remove();
             }
+        }
+    }
+
+
+    private static void accecpHandler(SelectionKey key, Selector selector) {
+        ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
+        try {
+            SocketChannel socketChannel = serverSocketChannel.accept();
+            socketChannel.configureBlocking(false);
+            // 给每个 socket 绑定一个 buffer
+            ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+            socketChannel.register(selector, SelectionKey.OP_READ, byteBuffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void readHandler(SelectionKey key) {
+        SocketChannel socketChannel = (SocketChannel) key.channel();
+        ByteBuffer byteBuffer = (ByteBuffer) key.attachment();
+        byteBuffer.clear();
+        int rs = 0;
+        try {
+            while (true) {
+                rs = socketChannel.read(byteBuffer);
+                if (rs > 0) {
+                    byteBuffer.flip();
+                    while (byteBuffer.hasRemaining()) {
+                        String message = new String(byteBuffer.array(), 0, byteBuffer.limit(), "UTF-8");
+                        System.out.println(String.format("线程%s，收到客户端信息:%s", Thread.currentThread().getName(), message));
+
+                        message = String.format("[%s]", message);
+                        byteBuffer.clear();
+                        byteBuffer.put(message.getBytes("UTF-8"));
+                        byteBuffer.flip();
+                        socketChannel.write(byteBuffer);
+                    }
+                    byteBuffer.clear();
+                } else if (rs == 0) {
+                    break;
+                } else {        // -1，客户端 close，服务端陷入 close_wait，死循环
+                    socketChannel.close();
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
